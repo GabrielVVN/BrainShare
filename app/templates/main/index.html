@@ -2,6 +2,15 @@
 
 {% block content %}
 <div class="container mt-4 mb-5">
+    
+    <div class="d-lg-none mb-3">
+        <button class="btn btn-dark w-100 d-flex justify-content-between align-items-center shadow-sm" 
+                type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+            <span><i class="bi bi-list me-2"></i> Menu, Perfil & Filtros</span>
+            <span class="badge bg-light text-dark">{{ current_filter or 'Geral' }}</span>
+        </button>
+    </div>
+
     <div class="row g-4">
         
         <div class="col-lg-3 d-none d-lg-block">
@@ -18,13 +27,16 @@
                     <h6 class="text-uppercase text-muted small fw-bold mb-3">
                         <i class="bi bi-pencil-square me-1"></i> Publicar Conteúdo
                     </h6>
+                    
                     <form action="{{ url_for('main.create_post') }}" method="post" enctype="multipart/form-data">
+                        
                         <div class="mb-2">
                             <input type="text" name="title" class="form-control fw-bold" placeholder="Título do post..." required>
                         </div>
                         <div class="mb-3">
                             <textarea name="body" class="form-control" rows="2" placeholder="Compartilhe conhecimento..." required></textarea>
                         </div>
+                        
                         <div class="row g-2 mb-3">
                             <div class="col-md-6">
                                 <select name="subject" class="form-select form-select-sm" required>
@@ -41,6 +53,7 @@
                                 <input class="form-control form-control-sm" type="file" name="file">
                             </div>
                         </div>
+                        
                         <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded border border-light">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="small fw-bold text-muted ps-2">Tipo:</span>
@@ -58,7 +71,10 @@
 
             {% if current_filter %}
             <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
-                <span><i class="bi bi-funnel-fill text-muted me-2"></i> Filtrando por: <strong>{{ current_filter }}</strong></span>
+                <span>
+                    <i class="bi bi-funnel-fill text-muted me-2"></i>
+                    Filtrando por: <strong>{{ current_filter }}</strong>
+                </span>
                 <a href="{{ url_for('main.index') }}" class="btn-close"></a>
             </div>
             {% endif %}
@@ -70,7 +86,9 @@
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="d-flex align-items-center gap-3">
                                 <a href="{{ url_for('main.profile', username=post.author.username) }}">
-                                    <img src="{{ post.author.avatar }}" class="rounded-circle border border-2 border-light shadow-sm" width="45" height="45" style="object-fit: cover;">
+                                    <img src="{{ post.author.avatar }}" 
+                                         class="rounded-circle border border-2 border-light shadow-sm" 
+                                         width="45" height="45" style="object-fit: cover;">
                                 </a>
                                 <div>
                                     <a href="{{ url_for('main.profile', username=post.author.username) }}" class="text-dark fw-bold d-block text-decoration-none">
@@ -83,7 +101,8 @@
                             </div>
                             
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-light text-dark border">{{ post.subject }}</span>
+                                <span class="badge bg-light text-dark border d-none d-sm-inline-block">{{ post.subject }}</span>
+
                                 {% if post.type == 'duvida' %}
                                     <span class="badge-duvida">DÚVIDA</span>
                                 {% else %}
@@ -91,10 +110,8 @@
                                 {% endif %}
 
                                 {% if post.author == current_user or current_user.role == 'admin' %}
-                                    <form action="{{ url_for('main.delete_post', post_id=post.id) }}" method="post" onsubmit="return confirm('ADMIN: Apagar este post permanentemente?');">
-                                        <button type="submit" class="btn btn-link text-danger p-0 ms-2 text-decoration-none" title="Apagar Post">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                    <form action="{{ url_for('main.delete_post', post_id=post.id) }}" method="post" onsubmit="return confirm('Apagar?');">
+                                        <button type="submit" class="btn btn-link text-danger p-0 ms-2 text-decoration-none" title="Excluir"><i class="bi bi-trash"></i></button>
                                     </form>
                                 {% endif %}
                             </div>
@@ -120,12 +137,21 @@
                         {% endif %}
 
                         <div class="d-flex gap-3 mt-4 pt-3 border-top border-light">
-                            <button onclick="toggleLike({{ post.id }})" class="btn btn-outline-dark btn-sm border d-flex align-items-center gap-2" id="like-btn-{{ post.id }}">
-                                {% if current_user in post.liked_by %}<i class="bi bi-heart-fill text-danger"></i>{% else %}<i class="bi bi-heart"></i>{% endif %}
+                            <button onclick="toggleLike({{ post.id }})" 
+                                    class="btn btn-outline-dark btn-sm border d-flex align-items-center gap-2" 
+                                    id="like-btn-{{ post.id }}">
+                                {% if current_user in post.liked_by %}
+                                    <i class="bi bi-heart-fill text-danger"></i>
+                                {% else %}
+                                    <i class="bi bi-heart"></i>
+                                {% endif %}
                                 <span id="like-count-{{ post.id }}">{{ post.likes_count }}</span>
                             </button>
-                            <button class="btn btn-outline-dark btn-sm border d-flex align-items-center gap-2" type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}">
-                                <i class="bi bi-chat"></i> <span>{{ post.comments.count() }}</span>
+
+                            <button class="btn btn-outline-dark btn-sm border d-flex align-items-center gap-2" 
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#comments-{{ post.id }}">
+                                <i class="bi bi-chat"></i> 
+                                <span>{{ post.comments.count() }}</span>
                             </button>
                         </div>
 
@@ -133,21 +159,25 @@
                             <div class="bg-light p-3 rounded border">
                                 {% for comment in post.comments %}
                                     <div class="d-flex gap-2 mb-2 border-bottom pb-2 {% if comment.is_best_answer %}bg-white border-success p-2 rounded border{% endif %}">
-                                        <img src="{{ comment.author.avatar }}" class="rounded-circle border" width="24" height="24" style="object-fit: cover;">
+                                        <img src="{{ comment.author.avatar }}" 
+                                             class="rounded-circle border" 
+                                             width="24" height="24" style="object-fit: cover;">
+                                        
                                         <div class="w-100">
                                             <div class="d-flex justify-content-between">
                                                 <strong class="small text-dark">
                                                     {{ comment.author.username }}
-                                                    {% if comment.author.role == 'professor' %}<span class="text-primary small" style="font-size: 0.6rem;">(Prof)</span>{% endif %}
+                                                    {% if comment.author.role == 'professor' %}<span class="badge-role-professor">PROF</span>{% endif %}
                                                 </strong>
                                                 {% if comment.is_best_answer %}
-                                                    <span class="badge bg-success text-white"><i class="bi bi-check-circle-fill"></i> Solução</span>
+                                                    <span class="badge bg-success text-white" style="font-size: 0.6rem;">Solução</span>
                                                 {% endif %}
                                             </div>
                                             <span class="text-muted ms-0" style="font-size: 0.85rem;">{{ comment.body }}</span>
                                         </div>
                                     </div>
                                 {% endfor %}
+
                                 <form action="{{ url_for('main.comment_post', post_id=post.id) }}" method="post" class="mt-2 d-flex gap-2">
                                     <input type="text" name="text" class="form-control form-control-sm" placeholder="Responder..." required>
                                     <button type="submit" class="btn btn-dark btn-sm"><i class="bi bi-send"></i></button>
@@ -160,10 +190,26 @@
             {% else %}
                 <div class="text-center py-5 text-muted">
                     <i class="bi bi-inbox fs-1 opacity-25"></i>
-                    <p class="mt-2">Nada encontrado.</p>
+                    <p class="mt-2">
+                        {% if current_filter %}
+                            Nenhum post encontrado em <strong>{{ current_filter }}</strong>.
+                        {% else %}
+                            O feed está vazio.
+                        {% endif %}
+                    </p>
                 </div>
             {% endfor %}
         </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-start offcanvas-system" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold">Menu & Filtros</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% include "main/_sidebar_content.html" %}
     </div>
 </div>
 
@@ -178,6 +224,10 @@ async function toggleLike(postId) {
         countSpan.innerText = data.likes_count;
         if (data.action === 'like') {
             icon.classList.remove('bi-heart'); icon.classList.add('bi-heart-fill', 'text-danger');
+            Swal.fire({
+                toast: true, position: 'bottom-end', icon: 'success', 
+                title: 'Curtiu!', showConfirmButton: false, timer: 1500, background: '#171717', color: '#fff'
+            });
         } else {
             icon.classList.remove('bi-heart-fill', 'text-danger'); icon.classList.add('bi-heart');
         }
