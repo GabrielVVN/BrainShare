@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Painel Administrativo</h3>
+        <span class="badge bg-dark">Total Posts: {{ posts_count }}</span>
+    </div>
+
+    <div class="card-system">
+        <div class="card-body">
+            <h5 class="mb-3">Gerenciar Usuários</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Email</th>
+                            <th>Cargo Atual</th>
+                            <th>Ação (Mudar Cargo)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <img src="{{ user.avatar }}" class="rounded-circle border me-2" width="30" height="30">
+                                <strong>{{ user.username }}</strong>
+                            </td>
+                            <td class="text-muted small">{{ user.email }}</td>
+                            <td>
+                                {% if user.role == 'admin' %}
+                                    <span class="badge bg-danger">ADMIN</span>
+                                {% elif user.role == 'professor' %}
+                                    <span class="badge bg-primary">PROFESSOR</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">ALUNO</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="{{ url_for('main.change_role', user_id=user.id) }}" method="post" class="d-flex gap-2">
+                                    <select name="role" class="form-select form-select-sm" style="width: 130px;">
+                                        <option value="student" {% if user.role == 'student' %}selected{% endif %}>Aluno</option>
+                                        <option value="professor" {% if user.role == 'professor' %}selected{% endif %}>Professor</option>
+                                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-dark">Salvar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

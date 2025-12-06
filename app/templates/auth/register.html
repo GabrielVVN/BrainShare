@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Junte-se ao BrainShare</h3>
+            <p class="text-muted">A comunidade de estudos colaborativa.</p>
+        </div>
+
+        <form action="" method="post" class="card-system p-4 shadow-sm">
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">Nome de Usuário</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-muted">Eu sou:</label>
+                <select name="role" class="form-select">
+                    <option value="student">👨‍🎓 Aluno</option>
+                    <option value="professor">👨‍🏫 Professor</option>
+                </select>
+                <div class="form-text small">Professores podem validar respostas.</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-muted">Senha</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 py-2">Criar Conta Grátis</button>
+        </form>
+        
+        <p class="mt-3 text-center small">
+            Já tem uma conta? <a href="{{ url_for('auth.login') }}" class="text-dark fw-bold">Fazer Login</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

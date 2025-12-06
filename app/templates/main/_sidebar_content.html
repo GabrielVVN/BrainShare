@@ -1,0 +1,83 @@
+<div class="card-system p-4 text-center mb-3">
+    {% if current_user.is_authenticated %}
+        <img src="{{ current_user.avatar }}" 
+             class="rounded-circle mb-3 border border-1 border-dark p-1 shadow-sm" 
+             width="90" height="90" style="object-fit: cover;">
+        
+        <h5 class="fw-bold text-dark mb-0">{{ current_user.username }}</h5>
+        
+        <p class="text-muted small mb-3">
+            {% if current_user.job_title %}
+                {{ current_user.job_title }}
+            {% elif current_user.role == 'admin' %}
+                <span class="text-danger fw-bold">Administrador</span>
+            {% elif current_user.role == 'professor' %}
+                <span class="text-primary fw-bold">Professor</span>
+            {% else %}
+                Estudante
+            {% endif %}
+        </p>
+        
+        <div class="xp-progress-container mb-1">
+            <div class="xp-progress-bar" style="width: {{ (current_user.xp % 1000) / 10 }}%"></div>
+        </div>
+        <div class="d-flex justify-content-between small fw-bold">
+            <span class="text-dark">Lvl {{ current_user.level }}</span>
+            <span class="text-muted">{{ current_user.xp }} XP</span>
+        </div>
+
+        <hr class="my-4 border-light">
+        
+        <div class="d-grid gap-2">
+            <a href="{{ url_for('main.profile', username=current_user.username) }}" class="btn btn-outline-dark btn-sm text-start">
+                <i class="bi bi-person-badge me-2"></i> Meu Perfil
+            </a>
+        </div>
+    {% else %}
+        <h5>Bem-vindo!</h5>
+        <p class="text-muted small">Faça login para participar.</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary w-100">Entrar</a>
+    {% endif %}
+</div>
+
+<div class="card-system p-0 overflow-hidden">
+    <div class="p-3 bg-light border-bottom">
+        <h6 class="mb-0 fw-bold text-uppercase small text-muted">Filtrar por Matéria</h6>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{{ url_for('main.index') }}" 
+           class="list-group-item list-group-item-action border-0 {% if not current_filter %}active-filter{% endif %}">
+            <i class="bi bi-grid-fill me-2"></i> Todas
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Tecnologia') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Tecnologia' %}active-filter{% endif %}">
+            <i class="bi bi-laptop me-2"></i> Tecnologia
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Matematica') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Matematica' %}active-filter{% endif %}">
+            <i class="bi bi-calculator me-2"></i> Matemática
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Ciencias') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Ciencias' %}active-filter{% endif %}">
+            <i class="bi bi-virus me-2"></i> Ciências
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Humanas') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Humanas' %}active-filter{% endif %}">
+            <i class="bi bi-globe-americas me-2"></i> Humanas
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Idiomas') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Idiomas' %}active-filter{% endif %}">
+            <i class="bi bi-translate me-2"></i> Idiomas
+        </a>
+        
+        <a href="{{ url_for('main.index', subject='Geral') }}" 
+           class="list-group-item list-group-item-action border-0 {% if current_filter == 'Geral' %}active-filter{% endif %}">
+            <i class="bi bi-chat-square-text me-2"></i> Geral
+        </a>
+    </div>
+</div>

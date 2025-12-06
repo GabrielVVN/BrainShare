@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="profile-header-bg">
+    <div class="container h-100 position-relative">
+        <div class="profile-avatar-container d-flex align-items-end">
+            <img src="{{ user.avatar }}" class="profile-avatar-img shadow-lg" style="object-fit: cover;">
+            
+            <div class="mb-2 ms-3">
+    <h2 class="fw-bold text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">{{ user.username }}</h2>
+    
+    <span class="text-white-50 fw-medium d-block mb-1">
+        {% if user.job_title %}
+            {{ user.job_title }}
+        {% elif user.role == 'admin' %}
+            Administrador
+        {% elif user.role == 'professor' %}
+            Professor
+        {% else %}
+            Estudante
+        {% endif %}
+    </span>
+    
+    <span class="badge bg-white text-dark fw-bold border mt-1">Nível {{ user.level }}</span>
+    {% if user.id == current_user.id %}
+        <span class="badge bg-success ms-1">Você</span>
+    {% endif %}
+</div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5 pt-4">
+    <div class="row">
+        
+        <div class="col-md-4">
+            
+            <div class="card-system mb-4">
+                <div class="card-body">
+                    {% if user.about_me %}
+                        <h6 class="fw-bold text-uppercase text-muted small mb-2">Sobre</h6>
+                        <p class="text-secondary small" style="line-height: 1.6;">{{ user.about_me }}</p>
+                    {% endif %}
+
+                    {% if user.linkedin %}
+                        <a href="{{ user.linkedin }}" target="_blank" class="btn btn-outline-primary btn-sm w-100 mb-3">
+                            <i class="bi bi-linkedin me-2"></i> Conectar no LinkedIn
+                        </a>
+                    {% endif %}
+
+                    <hr class="border-light my-3">
+
+                    <h6 class="fw-bold text-uppercase text-muted small mb-3">Progresso</h6>
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-6">
+                            <div class="bg-light p-2 rounded border">
+                                <div class="fw-bold fs-5 text-dark">{{ user.posts.count() }}</div>
+                                <div class="text-muted small" style="font-size: 0.65rem;">POSTS</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light p-2 rounded border">
+                                <div class="fw-bold fs-5 text-dark">{{ user.xp }}</div>
+                                <div class="text-muted small" style="font-size: 0.65rem;">XP TOTAL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.id == current_user.id %}
+            <div class="d-grid mb-4">
+                <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-dark fw-bold">
+                    <i class="bi bi-pencil-square me-2"></i> Editar Perfil
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-8">
+            <h5 class="fw-bold mb-3 border-bottom pb-2">Atividades Recentes</h5>
+            
+            {% for post in posts %}
+                <div class="card-system mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">{{ post.timestamp.strftime('%d/%m/%Y') }}</small>
+                            <span class="badge bg-light text-dark border">{{ post.subject }}</span>
+                        </div>
+                        
+                        <h5 class="mt-2 mb-2">
+                            <a href="{{ url_for('main.post_detail', post_id=post.id) }}" class="text-dark text-decoration-none fw-bold">{{ post.title }}</a>
+                        </h5>
+                        
+                        {% if post.filename %}
+                            <div class="p-2 bg-light border rounded mb-2 d-flex align-items-center gap-2">
+                                <i class="bi bi-paperclip"></i>
+                                <span class="small text-truncate">{{ post.filename }}</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="text-muted small">
+                            <i class="bi bi-heart-fill text-danger"></i> {{ post.likes_count }}
+                            <i class="bi bi-chat-fill ms-3"></i> {{ post.comments.count() }}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    Nenhuma atividade recente.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

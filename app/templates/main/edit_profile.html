@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card-system">
+                <div class="card-body p-5">
+                    <h4 class="fw-bold mb-4 text-center">Editar Perfil</h4>
+                    
+                    <form action="" method="post" enctype="multipart/form-data">
+                        
+                        <div class="text-center mb-4">
+                            <img src="{{ current_user.avatar }}" class="rounded-circle mb-3 shadow-sm border" width="100" height="100" style="object-fit: cover;">
+                            <div>
+                                <label class="btn btn-outline-dark btn-sm rounded-pill px-4">
+                                    <i class="bi bi-camera me-2"></i> Alterar Foto
+                                    <input type="file" name="avatar" class="d-none" onchange="form.submit()"> </label>
+                            </div>
+                            <small class="text-muted">JPG ou PNG</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nome de Usuário</label>
+                            <input type="text" name="username" class="form-control" value="{{ current_user.username }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Ocupação / Título</label>
+                            <input type="text" name="job_title" class="form-control" placeholder="Ex: Estudante de TI, Engenheiro..." value="{{ current_user.job_title or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Sobre Mim</label>
+                            <textarea name="about_me" class="form-control" rows="4" placeholder="Conte um pouco sobre seus objetivos...">{{ current_user.about_me or '' }}</textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">LinkedIn (URL)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-linkedin text-primary"></i></span>
+                                <input type="url" name="linkedin" class="form-control border-start-0" placeholder="https://linkedin.com/in/..." value="{{ current_user.linkedin or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                            <a href="{{ url_for('main.profile', username=current_user.username) }}" class="btn btn-link text-muted text-decoration-none">Cancelar</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

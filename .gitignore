@@ -1,0 +1,97 @@
+# ===================================
+# AMBIENTE PYTHON E DEPENDÊNCIAS
+# ===================================
+venv/
+env/
+ENV/
+.venv
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ===================================
+# IDE E EDITOR
+# ===================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ===================================
+# BANCO DE DADOS
+# ===================================
+*.db
+*.sqlite
+*.sqlite3
+instance/
+.env.local
+
+# ===================================
+# ARQUIVOS DE UPLOAD E CACHE
+# ===================================
+app/static/uploads/
+app/static/uploads/avatars/
+app/static/cache/
+*.tmp
+*.temp
+
+# ===================================
+# VARIÁVEIS DE AMBIENTE
+# ===================================
+.env
+.env.*.local
+.env.*.py
+
+# ===================================
+# LOGS
+# ===================================
+*.log
+logs/
+
+# ===================================
+# TESTES
+# ===================================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===================================
+# ARQUIVOS DO SISTEMA
+# ===================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===================================
+# ARQUIVOS TEMPORÁRIOS
+# ===================================
+*.bak
+*.tmp
+temp/
+temp/
+.tmp/
+
+# ===================================
+# NODE (se usar frontend tools)
+# ===================================
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ===================================
+# ARQUIVOS SENSÍVEIS
+# ===================================
+secrets.json
+.secrets/
+private_keys/

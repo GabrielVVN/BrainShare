@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BrainShare | Plataforma de Estudos</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+  </head>
+  
+  <body style="background-color: #f8f9fa; margin: 0; padding: 0;">
+
+    <nav class="navbar-system">
+      
+      <div class="nav-left">
+          <a href="{{ url_for('main.index') }}" class="brand-link">
+              <div class="brand-icon"><i class="bi bi-share-fill"></i></div>
+              <span class="brand-text d-none d-sm-block">
+                  Brain<span style="font-weight: 300; opacity: 0.8;">Share</span>
+              </span>
+          </a>
+      </div>
+
+      <div class="nav-center d-none d-md-flex">
+          <div class="search-wrapper">
+              <i class="bi bi-search search-icon"></i>
+              
+              <input type="text" id="live-search-input" name="q" 
+                     placeholder="Pesquisar no BrainShare..." 
+                     class="search-input" autocomplete="off"
+                     value="{{ request.args.get('q', '') }}">
+              
+              <i class="bi bi-x search-clear" id="search-clear-btn" title="Limpar pesquisa"></i>
+              
+              <div id="live-search-results" class="search-dropdown"></div>
+          </div>
+      </div>
+
+      <div class="nav-right">
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.index') }}" class="icon-btn" title="Feed de Estudos">
+                <i class="bi bi-house-door"></i>
+            </a>
+            
+            <a href="{{ url_for('main.leaderboard') }}" class="icon-btn" title="Ranking Global">
+                <i class="bi bi-trophy"></i>
+            </a>
+
+            <a href="{{ url_for('main.achievements') }}" class="icon-btn" title="Sala de Troféus">
+                <i class="bi bi-star-fill"></i>
+            </a>
+
+            <a href="{{ url_for('main.notifications') }}" class="icon-btn position-relative" title="Notificações">
+                <i class="bi bi-bell"></i>
+                {% if unread_count > 0 %}
+                    <span class="position-absolute bg-danger border border-dark rounded-circle d-flex align-items-center justify-content-center text-white" 
+                          style="width: 16px; height: 16px; top: 5px; right: 5px; font-size: 0.6rem; font-weight: bold;">
+                        {{ unread_count }}
+                    </span>
+                {% endif %}
+            </a>
+            
+            <div class="separator"></div>
+
+            <div class="dropdown">
+                <div class="profile-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{{ current_user.avatar }}" 
+                         class="avatar-img" style="object-fit: cover;">
+                    <span class="username d-none d-lg-block">{{ current_user.username }}</span>
+                    <i class="bi bi-chevron-down text-muted ms-1" style="font-size: 0.7rem;"></i>
+                </div>
+                
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2 p-2" style="border: 1px solid #eee;">
+                    <li><h6 class="dropdown-header small text-muted text-uppercase">Minha Conta</h6></li>
+                    
+                    {% if current_user.is_admin %}
+                        <li>
+                            <a class="dropdown-item rounded fw-bold text-danger mb-1" href="{{ url_for('main.admin_panel') }}">
+                                <i class="bi bi-shield-lock-fill me-2"></i> Painel Admin
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li>
+                        <a class="dropdown-item rounded" href="{{ url_for('main.profile', username=current_user.username) }}">
+                            <i class="bi bi-person me-2"></i> Perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item rounded" href="{{ url_for('main.edit_profile') }}">
+                            <i class="bi bi-gear me-2"></i> Configurações
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item rounded text-danger" href="{{ url_for('auth.logout') }}">
+                            <i class="bi bi-box-arrow-right me-2"></i> Sair
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-sm text-secondary fw-bold me-2" style="text-decoration: none;">Entrar</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Criar Conta</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <div class="container-fluid p-0">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // --- 1. NOTIFICAÇÕES TOAST (XP e Avisos) ---
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    // Se a mensagem contém "XP" ou "CONQUISTA", mostra um Toast Preto de Sucesso
+                    if ("{{ message }}".includes("XP") || "{{ message }}".includes("CONQUISTA")) {
+                        const Toast = Swal.mixin({
+                            toast: true, position: 'bottom-end', showConfirmButton: false, 
+                            timer: 5000, timerProgressBar: true, background: '#171717', color: '#fff'
+                        });
+                        Toast.fire({ icon: 'success', title: "{{ message }}" });
+                    } else {
+                        // Mensagens normais
+                        Swal.fire({ text: "{{ message }}", icon: 'info', confirmButtonColor: '#000' });
+                    }
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        // --- 2. LÓGICA DE BUSCA EM TEMPO REAL ---
+        const searchInput = document.getElementById('live-search-input');
+        const resultsBox = document.getElementById('live-search-results');
+        const clearBtn = document.getElementById('search-clear-btn');
+        let timeout = null;
+
+        function toggleClearBtn() {
+            if (searchInput && searchInput.value.trim().length > 0) {
+                clearBtn.style.display = 'block';
+            } else if (clearBtn) {
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeout);
+                const query = this.value.trim();
+                
+                toggleClearBtn();
+
+                if (query.length === 0) {
+                    resultsBox.classList.remove('active');
+                    setTimeout(() => resultsBox.innerHTML = '', 200);
+                    return;
+                }
+
+                resultsBox.innerHTML = '<div class="search-loading"><i class="bi bi-arrow-repeat"></i> Buscando...</div>';
+                resultsBox.classList.add('active');
+
+                timeout = setTimeout(() => {
+                    fetch(`/search/live?q=${query}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            let html = '';
+
+                            // Usuários
+                            if (data.users.length > 0) {
+                                html += '<div class="search-section-title">Usuários</div>';
+                                data.users.forEach(user => {
+                                    html += `
+                                        <a href="/user/${user.username}" class="search-result-item text-decoration-none">
+                                            <img src="https://ui-avatars.com/api/?name=${user.username}&background=000&color=fff" class="rounded-circle" width="32">
+                                            <div>
+                                                <div class="fw-bold text-dark" style="font-size: 0.9rem;">${user.username}</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">Nível ${user.level}</div>
+                                            </div>
+                                        </a>`;
+                                });
+                            }
+
+                            // Publicações
+                            if (data.posts.length > 0) {
+                                html += '<div class="search-section-title">Publicações</div>';
+                                data.posts.forEach(post => {
+                                    const icon = post.type === 'duvida' ? 'bi-question-lg' : 'bi-book';
+                                    const color = post.type === 'duvida' ? 'text-warning' : 'text-primary';
+                                    
+                                    // CORREÇÃO: Link via ID do Post
+                                    html += `
+                                        <div class="search-result-item" onclick="window.location.href='/post/${post.id}'">
+                                            <div class="search-icon-placeholder">
+                                                <i class="bi ${icon} ${color}"></i>
+                                            </div>
+                                            <div style="overflow: hidden;">
+                                                <div class="fw-bold text-dark text-truncate" style="font-size: 0.9rem;">${post.title}</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">${post.type.toUpperCase()}</div>
+                                            </div>
+                                        </div>`;
+                                });
+                            }
+
+                            if (data.users.length === 0 && data.posts.length === 0) {
+                                html = '<div class="p-3 text-center text-muted small">Nenhum resultado encontrado.</div>';
+                            }
+
+                            html += `<a href="/search?q=${query}" class="d-block p-2 text-center bg-light text-dark text-decoration-none border-top small fw-bold">Ver todos os resultados</a>`;
+                            
+                            resultsBox.innerHTML = html;
+                        });
+                }, 300);
+            });
+
+            clearBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                toggleClearBtn();
+                resultsBox.classList.remove('active');
+                searchInput.focus();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !resultsBox.contains(e.target) && !clearBtn.contains(e.target)) {
+                    resultsBox.classList.remove('active');
+                }
+            });
+
+            toggleClearBtn();
+        }
+    </script>
+  </body>
+</html>
