@@ -6,6 +6,7 @@ from app import db
 from app.main import bp
 from app.models import Post, User, Comment, Notification, Achievement
 from app.decorators import admin_required, professor_required
+from datetime import datetime, date
 
 # --- HELPERS ---
 @bp.context_processor
@@ -13,6 +14,14 @@ def inject_notifications():
     if current_user.is_authenticated:
         return dict(unread_count=current_user.new_notifications())
     return dict(unread_count=0)
+
+def check_and_reset_daily_limits(user):
+    today = date.today()
+    if user.last_activity_reset.date() < today:
+        user.daily_likes = 0
+        user.daily_comments = 0
+        user.last_activity_reset = datetime.utcnow()
+        db.session.commit()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
@@ -93,6 +102,11 @@ def create_post():
 @bp.route('/post/<int:post_id>/comment', methods=['POST'])
 @login_required
 def comment_post(post_id):
+    check_and_reset_daily_limits(current_user)
+    if current_user.daily_comments >= 3:
+        flash('Você atingiu o limite diário de comentários.')
+        return redirect(request.referrer or url_for('main.index'))
+
     post = Post.query.get_or_404(post_id)
     text = request.form.get('text')
     
@@ -100,6 +114,7 @@ def comment_post(post_id):
         
     comment = Comment(body=text, author=current_user, post=post)
     current_user.add_xp(20)
+    current_user.daily_comments += 1
     
     if post.author != current_user:
         notif = Notification(recipient=post.author, sender=current_user, post=post, action='comment')
@@ -119,13 +134,19 @@ def comment_post(post_id):
 @bp.route('/post/<int:post_id>/like', methods=['POST'])
 @login_required
 def like_post(post_id):
+    check_and_reset_daily_limits(current_user)
     post = Post.query.get_or_404(post_id)
+    
     if post in current_user.liked_posts:
         current_user.liked_posts.remove(post)
         action = 'unlike'
         if post.author != current_user: post.author.add_xp(-10)
     else:
+        if current_user.daily_likes >= 3:
+            return jsonify({'error': 'Limite diário de curtidas atingido.'}), 403
+            
         current_user.liked_posts.append(post)
+        current_user.daily_likes += 1
         action = 'like'
         if post.author != current_user:
             post.author.add_xp(10)
@@ -220,7 +241,40 @@ def edit_profile():
 def admin_panel():
     users = User.query.all()
     posts_count = Post.query.count()
-    return render_template('main/admin_panel.html', users=users, posts_count=posts_count)
+    reported_posts = Post.query.filter_by(status='denunciada').all()
+    return render_template('main/admin_panel.html', users=users, posts_count=posts_count, reported_posts=reported_posts)
+
+@bp.route('/post/<int:post_id>/report', methods=['POST'])
+@login_required
+def report_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.status == 'denunciada':
+        flash('Esta publicação já foi denunciada.')
+        return redirect(request.referrer or url_for('main.index'))
+    post.status = 'denunciada'
+    db.session.commit()
+    flash('Publicação denunciada. A administração irá analisar.')
+    return redirect(request.referrer or url_for('main.index'))
+
+@bp.route('/post/<int:post_id>/unreport', methods=['POST'])
+@login_required
+@admin_required
+def unreport_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    post.status = 'normal'
+    db.session.commit()
+    flash('Denúncia ignorada. A publicação voltou ao normal.')
+    return redirect(request.referrer or url_for('main.admin_panel'))
+
+@bp.route('/post/<int:post_id>/remove', methods=['POST'])
+@login_required
+@admin_required
+def remove_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Publicação removida com sucesso.')
+    return redirect(request.referrer or url_for('main.admin_panel'))
 
 @bp.route('/admin/user/<int:user_id>/role', methods=['POST'])
 @login_required

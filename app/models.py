@@ -30,6 +30,11 @@ class User(UserMixin, db.Model):
     avatar_file = db.Column(db.String(120))
     job_title = db.Column(db.String(100))
     linkedin = db.Column(db.String(200))
+
+    # Limites
+    daily_likes = db.Column(db.Integer, default=0)
+    daily_comments = db.Column(db.Integer, default=0)
+    last_activity_reset = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relacionamentos
     posts = db.relationship('Post', backref='author', lazy='dynamic')
@@ -107,6 +112,7 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     filename = db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.String(20), default='normal') # normal | denunciada | removida
     comments = db.relationship('Comment', backref='post', lazy='dynamic', cascade="all, delete-orphan")
     notifications = db.relationship('Notification', backref='related_post', lazy='dynamic', cascade="all, delete-orphan")
 

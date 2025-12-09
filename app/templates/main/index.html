@@ -113,6 +113,10 @@
                                     <form action="{{ url_for('main.delete_post', post_id=post.id) }}" method="post" onsubmit="return confirm('Apagar?');">
                                         <button type="submit" class="btn btn-link text-danger p-0 ms-2 text-decoration-none" title="Excluir"><i class="bi bi-trash"></i></button>
                                     </form>
+                                {% else %}
+                                    <form action="{{ url_for('main.report_post', post_id=post.id) }}" method="post" onsubmit="return confirm('Deseja mesmo denunciar esta publicação?');">
+                                        <button type="submit" class="btn btn-link text-warning p-0 ms-2" title="Denunciar"><i class="bi bi-flag"></i></button>
+                                    </form>
                                 {% endif %}
                             </div>
                         </div>
@@ -178,10 +182,14 @@
                                     </div>
                                 {% endfor %}
 
+                                {% if current_user.daily_comments >= 3 %}
+                                    <div class="text-center text-muted small p-2 border rounded bg-light">Limite diário de comentários atingido.</div>
+                                {% else %}
                                 <form action="{{ url_for('main.comment_post', post_id=post.id) }}" method="post" class="mt-2 d-flex gap-2">
                                     <input type="text" name="text" class="form-control form-control-sm" placeholder="Responder..." required>
                                     <button type="submit" class="btn btn-dark btn-sm"><i class="bi bi-send"></i></button>
                                 </form>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -217,6 +225,14 @@
 async function toggleLike(postId) {
     try {
         const response = await fetch(`/post/${postId}/like`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        if (!response.ok) {
+            const errorData = await response.json();
+            Swal.fire({
+                toast: true, position: 'bottom-end', icon: 'error',
+                title: errorData.error, showConfirmButton: false, timer: 2000, background: '#171717', color: '#fff'
+            });
+            return;
+        }
         const data = await response.json();
         const btn = document.getElementById(`like-btn-${postId}`);
         const countSpan = document.getElementById(`like-count-${postId}`);

@@ -53,6 +53,43 @@
                 </table>
             </div>
         </div>
+    <div class="card-system mt-4">
+        <div class="card-body">
+            <h5 class="mb-3 text-danger">Publicações Denunciadas</h5>
+            {% if reported_posts %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Publicação</th>
+                            <th>Autor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in reported_posts %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('main.post_detail', post_id=post.id) }}" target="_blank">{{ post.title }}</a>
+                            </td>
+                            <td>{{ post.author.username }}</td>
+                            <td>
+                                <form action="{{ url_for('main.unreport_post', post_id=post.id) }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success">Ignorar</button>
+                                </form>
+                                <form action="{{ url_for('main.remove_post', post_id=post.id) }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">Apagar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">Nenhuma publicação denunciada no momento.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
