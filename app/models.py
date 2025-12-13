@@ -102,7 +102,8 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     sender = db.relationship('User', foreign_keys=[sender_id])
     post = db.relationship('Post', foreign_keys=[post_id])
-
+    # silence SAWarning about overlapping relationships with Post.notifications
+    post = db.relationship('Post', foreign_keys=[post_id], overlaps='notifications')
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(140))
@@ -114,7 +115,9 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     status = db.Column(db.String(20), default='normal') # normal | denunciada | removida
     comments = db.relationship('Comment', backref='post', lazy='dynamic', cascade="all, delete-orphan")
-    notifications = db.relationship('Notification', backref='related_post', lazy='dynamic', cascade="all, delete-orphan")
+    # 'notifications' and Notification.post both reference post.id -> notification.post_id
+    # create an explicit backref with overlaps to silence SAWarning and make intent explicit
+    notifications = db.relationship('Notification', backref=db.backref('related_post', overlaps='post'), lazy='dynamic', cascade="all, delete-orphan", overlaps='post')
 
     @property
     def likes_count(self): return self.liked_by.count()

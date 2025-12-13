@@ -17,7 +17,8 @@ def inject_notifications():
 
 def check_and_reset_daily_limits(user):
     today = date.today()
-    if user.last_activity_reset.date() < today:
+    # Ensure last_activity_reset exists and compare dates
+    if user.last_activity_reset is None or user.last_activity_reset.date() < today:
         user.daily_likes = 0
         user.daily_comments = 0
         user.last_activity_reset = datetime.utcnow()
@@ -103,7 +104,7 @@ def create_post():
 @login_required
 def comment_post(post_id):
     check_and_reset_daily_limits(current_user)
-    if current_user.daily_comments >= 3:
+    if (current_user.daily_comments or 0) >= 3:
         flash('Você atingiu o limite diário de comentários.')
         return redirect(request.referrer or url_for('main.index'))
 
@@ -114,6 +115,9 @@ def comment_post(post_id):
         
     comment = Comment(body=text, author=current_user, post=post)
     current_user.add_xp(20)
+    # handle possible NULL/None stored in DB
+    if current_user.daily_comments is None:
+        current_user.daily_comments = 0
     current_user.daily_comments += 1
     
     if post.author != current_user:
@@ -142,9 +146,11 @@ def like_post(post_id):
         action = 'unlike'
         if post.author != current_user: post.author.add_xp(-10)
     else:
-        if current_user.daily_likes >= 3:
+        if (current_user.daily_likes or 0) >= 3:
             return jsonify({'error': 'Limite diário de curtidas atingido.'}), 403
-            
+        # handle possible NULL/None stored in DB
+        if current_user.daily_likes is None:
+            current_user.daily_likes = 0
         current_user.liked_posts.append(post)
         current_user.daily_likes += 1
         action = 'like'

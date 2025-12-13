@@ -182,7 +182,7 @@
                                     </div>
                                 {% endfor %}
 
-                                {% if current_user.daily_comments >= 3 %}
+                                {% if current_user.is_authenticated and (current_user.daily_comments or 0) >= 3 %}
                                     <div class="text-center text-muted small p-2 border rounded bg-light">Limite diário de comentários atingido.</div>
                                 {% else %}
                                 <form action="{{ url_for('main.comment_post', post_id=post.id) }}" method="post" class="mt-2 d-flex gap-2">

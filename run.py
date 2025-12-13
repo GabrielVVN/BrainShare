@@ -1,5 +1,6 @@
 from app import create_app, db
 from app.models import User, Post, Comment, Achievement
+from sqlalchemy.exc import OperationalError
 
 app = create_app()
 
@@ -11,7 +12,12 @@ def make_shell_context():
 def init_db_data():
     with app.app_context():
         # 1. Admin
-        admin = User.query.filter_by(email='admin@brainshare.com').first()
+        try:
+            admin = User.query.filter_by(email='admin@brainshare.com').first()
+        except OperationalError:
+            # DB schema is not yet updated to match models (missing columns) - instruct the user
+            print("Database schema appears to be out-of-date or missing. Run: flask db upgrade")
+            return
         if not admin:
             u = User(username='Admin', email='admin@brainshare.com', role='admin')
             u.set_password('admin123')
