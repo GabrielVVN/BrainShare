@@ -2,7 +2,17 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user
 from app import db
 from app.auth import bp
-from app.models import User
+from app.models import User, Achievement
+
+# FUNÇÃO PARA CONQUISTAS
+def check_and_unlock(user, achievement_key):
+    ach = Achievement.query.filter_by(key=achievement_key).first()
+    if ach and ach not in user.achievements:
+        user.achievements.append(ach)
+        user.add_xp(ach.xp_reward)
+        db.session.commit()
+        return True
+    return False
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -51,6 +61,9 @@ def register():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
+        
+        # CONCEDE CONQUISTA DE BEM-VINDO
+        check_and_unlock(user, 'welcome')
         
         flash('Cadastro realizado! Bem-vindo ao BrainShare.')
         return redirect(url_for('auth.login'))

@@ -44,6 +44,9 @@ class User(UserMixin, db.Model):
     
     # NOVO: Conquistas
     achievements = db.relationship('Achievement', secondary=user_achievements, backref=db.backref('users', lazy='dynamic'))
+    
+    # NOVO: Mascotes
+    mascote_atual = db.relationship('MascoteUsuario', backref='dono', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
@@ -129,3 +132,24 @@ class Comment(db.Model):
     is_best_answer = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+# --- NOVO SISTEMA: MASCOTES ---
+class Mascote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(50))
+    tipo = db.Column(db.String(20))  # fogo, agua, planta, etc.
+    evolucao = db.Column(db.Integer, default=1)  # 1, 2, 3
+    xp_necessario = db.Column(db.Integer)  # XP necessário para evoluir
+    imagem = db.Column(db.String(100))  # caminho da imagem
+    descricao = db.Column(db.String(200))
+
+class MascoteUsuario(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    mascote_id = db.Column(db.Integer, db.ForeignKey('mascote.id'))
+    evolucao_atual = db.Column(db.Integer, default=1)
+    data_adocao = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relacionamentos
+    usuario = db.relationship('User', overlaps="dono,mascote_atual")
+    mascote = db.relationship('Mascote')
