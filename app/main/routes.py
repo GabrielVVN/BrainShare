@@ -4,7 +4,7 @@ from flask import render_template, redirect, url_for, flash, request, jsonify, c
 from flask_login import login_required, current_user
 from app import db
 from app.main import bp
-from app.models import Post, User, Comment, Notification, Achievement
+from app.models import Post, User, Comment, Notification, Achievement, Mascote, MascoteUsuario
 from app.decorators import admin_required, professor_required
 from datetime import datetime, date
 
@@ -39,6 +39,32 @@ def check_and_unlock(user, achievement_key):
         return True
     return False
 
+# VERIFICAÇÃO AUTOMÁTICA DE CONQUISTAS
+def check_all_achievements(user):
+    """Verifica e desbloqueia todas as conquistas disponíveis para o usuário"""
+    if not user:
+        return
+    
+    # Conquista welcome (sempre desbloqueada para usuários logados)
+    check_and_unlock(user, 'welcome')
+    
+    # Conquista scholar (nível >= 5)
+    if user.level >= 5:
+        check_and_unlock(user, 'scholar')
+    
+    # Conquista first_post (1+ posts)
+    if user.posts.count() >= 1:
+        check_and_unlock(user, 'first_post')
+    
+    # Conquista helper (5+ comentários)
+    if user.comments.count() >= 5:
+        check_and_unlock(user, 'helper')
+    
+    # Conquista influencer (algum post com 10+ likes)
+    has_influencer_post = any(post.likes_count >= 10 for post in user.posts)
+    if has_influencer_post:
+        check_and_unlock(user, 'influencer')
+
 # --- ROTAS ---
 
 @bp.route('/')
@@ -48,9 +74,9 @@ def index():
     if subject_filter: query = query.filter_by(subject=subject_filter)
     posts = query.order_by(Post.timestamp.desc()).all()
     
-    # Checa conquista de nível no Feed (Ex: Nível 5)
-    if current_user.is_authenticated and current_user.level >= 5:
-        check_and_unlock(current_user, 'scholar')
+    # VERIFICAÇÃO AUTOMÁTICA DE TODAS AS CONQUISTAS
+    if current_user.is_authenticated:
+        check_all_achievements(current_user)
         
     return render_template('main/index.html', posts=posts, current_filter=subject_filter)
 
@@ -321,3 +347,56 @@ def notifications():
     for n in notifs: n.is_read = True
     db.session.commit()
     return render_template('main/notifications.html', notifications=notifs)
+
+# --- SISTEMA DE MASCOTES ---
+@bp.route('/mascotes')
+@login_required
+def mascotes():
+    # Pega todas as mascotes disponíveis
+    mascotes_disponiveis = Mascote.query.order_by(Mascote.tipo, Mascote.evolucao).all()
+    
+    # Verifica se usuário já tem mascote
+    mascote_usuario = MascoteUsuario.query.filter_by(user_id=current_user.id).first()
+    
+    # Calcula evolução baseada no nível do usuário
+    if mascote_usuario:
+        nivel_usuario = current_user.level
+        if nivel_usuario < 50:
+            evolucao_calculada = 1  # Bebê até nível 49
+        elif nivel_usuario < 100:
+            evolucao_calculada = 2  # Jovem de nível 50-99
+        else:
+            evolucao_calculada = 3  # Ancião nível 100+
+        
+        # Atualiza evolução se necessário
+        if mascote_usuario.evolucao_atual != evolucao_calculada:
+            mascote_usuario.evolucao_atual = evolucao_calculada
+            db.session.commit()
+            flash(f'🏆 Sua mascote evoluiu para o estágio {evolucao_calculada}!')
+    
+    return render_template('main/mascotes.html', 
+                         mascotes=mascotes_disponiveis, 
+                         mascote_usuario=mascote_usuario)
+
+@bp.route('/mascotes/adotar/<int:mascote_id>', methods=['POST'])
+@login_required
+def adotar_mascote(mascote_id):
+    # Verifica se já tem mascote
+    existente = MascoteUsuario.query.filter_by(user_id=current_user.id).first()
+    if existente:
+        flash('Você já tem uma mascote!')
+        return redirect(url_for('main.mascotes'))
+    
+    # Verifica se mascote existe e é evolução 1
+    mascote = Mascote.query.filter_by(id=mascote_id, evolucao=1).first()
+    if not mascote:
+        flash('Mascote inválida!')
+        return redirect(url_for('main.mascotes'))
+    
+    # Adota a mascote
+    nova_mascote = MascoteUsuario(user_id=current_user.id, mascote_id=mascote_id)
+    db.session.add(nova_mascote)
+    db.session.commit()
+    
+    flash(f'🎉 Você adotou {mascote.nome}!')
+    return redirect(url_for('main.mascotes'))
