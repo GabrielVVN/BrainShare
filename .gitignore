@@ -40,7 +40,6 @@ instance/
 # ===================================
 # ARQUIVOS DE UPLOAD E CACHE
 # ===================================
-app/static/uploads/
 app/static/uploads/avatars/
 app/static/cache/
 *.tmp

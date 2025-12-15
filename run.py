@@ -57,18 +57,18 @@ def init_mascotes():
         mascotes_data = [
             # SERPENTE DA SABEDORIA
             {'nome': 'Serpente Bebê', 'tipo': 'sabedoria', 'evolucao': 1, 'xp_necessario': 0, 'imagem': 'serpente1.png', 'descricao': 'Uma pequena serpente curiosa, sempre buscando conhecimento!'},
-            {'nome': 'Serpente Jovem', 'tipo': 'sabedoria', 'evolucao': 2, 'xp_necessario': 50, 'imagem': 'serpente2.png', 'descricao': 'Suas escamas brilham com sabedoria acumulada.'},
-            {'nome': 'Serpente Anciã', 'tipo': 'sabedoria', 'evolucao': 3, 'xp_necessario': 100, 'imagem': 'serpente3.png', 'descricao': 'Uma guardiã da sabedoria ancestral, mestre do conhecimento!'},
+            {'nome': 'Serpente Jovem', 'tipo': 'sabedoria', 'evolucao': 2, 'xp_necessario': 30, 'imagem': 'serpente2.png', 'descricao': 'Suas escamas brilham com sabedoria acumulada.'},
+            {'nome': 'Serpente Anciã', 'tipo': 'sabedoria', 'evolucao': 3, 'xp_necessario': 60, 'imagem': 'serpente3.png', 'descricao': 'Uma guardiã da sabedoria ancestral, mestre do conhecimento!'},
 
             # FÊNIX DA ESPERANÇA
             {'nome': 'Fênix Bebê', 'tipo': 'esperanca', 'evolucao': 1, 'xp_necessario': 0, 'imagem': 'fenix1.png', 'descricao': 'Uma pequena ave flamejante cheia de esperança e energia!'},
-            {'nome': 'Fênix Jovem', 'tipo': 'esperanca', 'evolucao': 2, 'xp_necessario': 50, 'imagem': 'fenix2.png', 'descricao': 'Suas asas começam a brilhar com fogo renovador.'},
-            {'nome': 'Fênix Ancião', 'tipo': 'esperanca', 'evolucao': 3, 'xp_necessario': 100, 'imagem': 'fenix3.png', 'descricao': 'Um majestoso pássaro de fogo, símbolo eterno da esperança!'},
+            {'nome': 'Fênix Jovem', 'tipo': 'esperanca', 'evolucao': 2, 'xp_necessario': 30, 'imagem': 'fenix2.png', 'descricao': 'Suas asas começam a brilhar com fogo renovador.'},
+            {'nome': 'Fênix Ancião', 'tipo': 'esperanca', 'evolucao': 3, 'xp_necessario': 60, 'imagem': 'fenix3.png', 'descricao': 'Um majestoso pássaro de fogo, símbolo eterno da esperança!'},
 
             # ZEBRA DO EQUILÍBRIO
             {'nome': 'Zebra Bebê', 'tipo': 'equilibrio', 'evolucao': 1, 'xp_necessario': 0, 'imagem': 'zebra1.png', 'descricao': 'Uma zebrinha brincalhona que busca harmonia em tudo!'},
-            {'nome': 'Zebra Jovem', 'tipo': 'equilibrio', 'evolucao': 2, 'xp_necessario': 50, 'imagem': 'zebra2.png', 'descricao': 'Suas listras representam o perfeito equilíbrio.'},
-            {'nome': 'Zebra Anciã', 'tipo': 'equilibrio', 'evolucao': 3, 'xp_necessario': 100, 'imagem': 'zebra3.png', 'descricao': 'Uma guardiã do equilíbrio cósmico, mantenedora da harmonia!'}
+            {'nome': 'Zebra Jovem', 'tipo': 'equilibrio', 'evolucao': 2, 'xp_necessario': 30, 'imagem': 'zebra2.png', 'descricao': 'Suas listras representam o perfeito equilíbrio.'},
+            {'nome': 'Zebra Anciã', 'tipo': 'equilibrio', 'evolucao': 3, 'xp_necessario': 60, 'imagem': 'zebra3.png', 'descricao': 'Uma guardiã do equilíbrio cósmico, mantenedora da harmonia!'}
         ]
 
         for data in mascotes_data:

@@ -37,7 +37,13 @@
     {% endif %}
 
     <!-- MASCOTES DISPONÍVEIS -->
-    <h5 class="fw-bold mb-3">Escolha sua Mascote</h5>
+    <h5 class="fw-bold mb-3">Mascotes</h5>    
+    {% if mascote_usuario.mascote.nome %}
+        <p class="text-muted small">Todos os mascotes disponíveis para adoção.</p>
+    {% else %}
+        <p class="text-muted small">Escolha um mascote para te acompanhar na sua jornada de aprendizado!</p>
+    {% endif %}
+
     
     <div class="row">
         {% for mascote in mascotes %}
@@ -50,7 +56,7 @@
                                  class="mascote-img-small" alt="{{ mascote.nome }}">
                         </div>
                         <h6 class="fw-bold">{{ mascote.nome }}</h6>
-                        <span class="badge bg-{{ 'warning' if mascote.tipo == 'sabedoria' else 'danger' if mascote.tipo == 'esperanca' else 'secondary' }}">
+                        <span class="badge bg-{{ 'success' if mascote.tipo == 'sabedoria' else 'danger' if mascote.tipo == 'esperanca' else 'secondary' }}">
                             {{ mascote.tipo.title() }}
                         </span>
                         <p class="small text-muted mt-2">{{ mascote.descricao }}</p>

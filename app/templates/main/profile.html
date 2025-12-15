@@ -10,7 +10,7 @@
             <div class="mb-2 ms-3">
     <h2 class="fw-bold text-white mb-0" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">{{ user.username }}</h2>
     
-    <span class="text-white-50 fw-medium d-block mb-1">
+    <span class="text-white-50 fw-medium d-block mb-1 badge bg-white" style="color: gray !important;">
         {% if user.job_title %}
             {{ user.job_title }}
         {% elif user.role == 'admin' %}

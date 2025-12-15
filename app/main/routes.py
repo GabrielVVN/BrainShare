@@ -255,6 +255,9 @@ def edit_profile():
         file = request.files.get('avatar')
         if file and file.filename != '':
             ext = file.filename.rsplit('.', 1)[1].lower()
+            # Ensure the avatar folder exists
+            if not os.path.exists(current_app.config['AVATAR_FOLDER']):
+                os.makedirs(current_app.config['AVATAR_FOLDER'])
             if ext in ['png', 'jpg', 'jpeg', 'gif']:
                 filename = f"user_{current_user.id}.{ext}"
                 file.save(os.path.join(current_app.config['AVATAR_FOLDER'], filename))
